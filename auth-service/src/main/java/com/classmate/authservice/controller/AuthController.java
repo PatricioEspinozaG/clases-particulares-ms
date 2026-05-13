@@ -6,6 +6,7 @@ import com.classmate.authservice.entity.Usuario;
 import com.classmate.authservice.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,9 +20,11 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Usuario register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<Usuario> register(
+            @Valid @RequestBody RegisterRequest request) {
 
-        return authService.register(request);
+        Usuario usuario = authService.register(request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
     }
 }
