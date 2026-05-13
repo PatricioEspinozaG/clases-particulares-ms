@@ -1,0 +1,27 @@
+package com.classmate.authservice.controller;
+
+
+import com.classmate.authservice.dto.RegisterRequest;
+import com.classmate.authservice.entity.Usuario;
+import com.classmate.authservice.service.AuthService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Usuario register(@Valid @RequestBody RegisterRequest request) {
+
+        return authService.register(request);
+    }
+}
