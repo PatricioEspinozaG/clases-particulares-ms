@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.classmate.authservice.dto.LoginRequest;
 import com.classmate.authservice.dto.LoginResponse;
+import com.classmate.authservice.dto.RegisterResponse;
 
 @RestController
 @RequestMapping("/auth")
@@ -32,14 +33,20 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Usuario> register(
+    public ResponseEntity<RegisterResponse> register(
             @Valid @RequestBody RegisterRequest request) {
 
         Usuario usuario = authService.register(request);
 
+        RegisterResponse response = new RegisterResponse(
+                usuario.getId(),
+                usuario.getEmail(),
+                usuario.getRole()
+        );
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(usuario);
+                .body(response);
     }
 
 }
