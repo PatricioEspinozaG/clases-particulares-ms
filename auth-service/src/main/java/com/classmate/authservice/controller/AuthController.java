@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.classmate.authservice.dto.LoginRequest;
+import com.classmate.authservice.dto.LoginResponse;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -19,12 +22,24 @@ public class AuthController {
         this.authService = authService;
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(
+            @Valid @RequestBody LoginRequest request) {
+
+        String token = authService.login(request);
+
+        return ResponseEntity.ok(new LoginResponse(token));
+    }
+
     @PostMapping("/register")
     public ResponseEntity<Usuario> register(
             @Valid @RequestBody RegisterRequest request) {
 
         Usuario usuario = authService.register(request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuario);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(usuario);
     }
+
 }
