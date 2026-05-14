@@ -27,4 +27,28 @@ public class ReservaService {
 
         return reservaRepository.save(reserva);
     }
+
+    public Reserva cancelarReserva(Long id) {
+
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Reserva no encontrada"));
+
+        if (reserva.getEstado() == EstadoReserva.CANCELADA) {
+            throw new RuntimeException("La reserva ya está cancelada");
+        }
+
+        reserva.setEstado(EstadoReserva.CANCELADA);
+
+        return reservaRepository.save(reserva);
+    }
+
+    public void eliminarReserva(Long id) {
+
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Reserva no encontrada"));
+
+        reservaRepository.delete(reserva);
+    }
 }

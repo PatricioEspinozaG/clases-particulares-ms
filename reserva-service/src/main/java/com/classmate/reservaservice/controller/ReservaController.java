@@ -38,4 +38,31 @@ public class ReservaController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+
+    @PatchMapping("/{id}/cancelar")
+    public ResponseEntity<ReservaResponse> cancelarReserva(
+            @PathVariable Long id) {
+
+        Reserva reserva = reservaService.cancelarReserva(id);
+
+        ReservaResponse response = new ReservaResponse(
+                reserva.getId(),
+                reserva.getUsuarioId(),
+                reserva.getProfesorId(),
+                reserva.getClaseId(),
+                reserva.getFechaReserva(),
+                reserva.getEstado()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarReserva(
+            @PathVariable Long id) {
+
+        reservaService.eliminarReserva(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }
