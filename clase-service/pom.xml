@@ -13,10 +13,10 @@
 	</parent>
 
 	<groupId>com.classmate</groupId>
-	<artifactId>auth-service</artifactId>
+	<artifactId>clase-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>auth-service</name>
-	<description>ClassMate Auth Service</description>
+	<name>clase-service</name>
+	<description>ClassMate Clase Service</description>
 
 	<properties>
 		<java.version>21</java.version>

@@ -1,15 +1,18 @@
-package com.classmate.reservaservice.entity;
+package com.classmate.claseservice.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "clases")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class Clase {
 
     @Id
@@ -17,14 +20,20 @@ public class Clase {
     private Long id;
 
     @Column(nullable = false)
-    private String nombre;
+    private String asignatura;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String descripcion;
 
     @Column(nullable = false)
     private Double precio;
 
     @Column(nullable = false)
-    private Integer duracionMinutos;
+    private LocalDateTime fecha;
+
+    @Column(nullable = false)
+    private Integer duracion;
+
+    @Column(nullable = false)
+    private Long profesorId;
 }
