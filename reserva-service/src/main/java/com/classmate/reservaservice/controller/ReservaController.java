@@ -2,7 +2,6 @@ package com.classmate.reservaservice.controller;
 
 import com.classmate.reservaservice.dto.CreateReservaRequest;
 import com.classmate.reservaservice.dto.ReservaResponse;
-import com.classmate.reservaservice.entity.Reserva;
 import com.classmate.reservaservice.service.ReservaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -25,75 +24,35 @@ public class ReservaController {
     public ResponseEntity<ReservaResponse> crearReserva(
             @Valid @RequestBody CreateReservaRequest request) {
 
-        Reserva reserva = reservaService.crearReserva(request);
-
-        ReservaResponse response = new ReservaResponse(
-                reserva.getId(),
-                reserva.getUsuarioId(),
-                reserva.getProfesorId(),
-                reserva.getClaseId(),
-                reserva.getFechaReserva(),
-                reserva.getEstado()
-        );
-
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(response);
+                .body(reservaService.crearReserva(request));
     }
 
     @GetMapping
     public ResponseEntity<List<ReservaResponse>> obtenerReservas() {
 
-        List<ReservaResponse> reservas = reservaService
-                .obtenerReservas()
-                .stream()
-                .map(reserva -> new ReservaResponse(
-                        reserva.getId(),
-                        reserva.getUsuarioId(),
-                        reserva.getProfesorId(),
-                        reserva.getClaseId(),
-                        reserva.getFechaReserva(),
-                        reserva.getEstado()
-                ))
-                .toList();
-
-        return ResponseEntity.ok(reservas);
+        return ResponseEntity.ok(
+                reservaService.obtenerReservas()
+        );
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ReservaResponse> obtenerReservaPorId(
             @PathVariable Long id) {
 
-        Reserva reserva = reservaService.obtenerReservaPorId(id);
-
-        ReservaResponse response = new ReservaResponse(
-                reserva.getId(),
-                reserva.getUsuarioId(),
-                reserva.getProfesorId(),
-                reserva.getClaseId(),
-                reserva.getFechaReserva(),
-                reserva.getEstado()
+        return ResponseEntity.ok(
+                reservaService.obtenerReservaPorId(id)
         );
-
-        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/cancelar")
     public ResponseEntity<ReservaResponse> cancelarReserva(
             @PathVariable Long id) {
 
-        Reserva reserva = reservaService.cancelarReserva(id);
-
-        ReservaResponse response = new ReservaResponse(
-                reserva.getId(),
-                reserva.getUsuarioId(),
-                reserva.getProfesorId(),
-                reserva.getClaseId(),
-                reserva.getFechaReserva(),
-                reserva.getEstado()
+        return ResponseEntity.ok(
+                reservaService.cancelarReserva(id)
         );
-
-        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")

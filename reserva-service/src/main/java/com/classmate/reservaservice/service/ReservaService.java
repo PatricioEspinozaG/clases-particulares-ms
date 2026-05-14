@@ -1,6 +1,7 @@
 package com.classmate.reservaservice.service;
 
 import com.classmate.reservaservice.dto.CreateReservaRequest;
+import com.classmate.reservaservice.dto.ReservaResponse;
 import com.classmate.reservaservice.entity.EstadoReserva;
 import com.classmate.reservaservice.entity.Reserva;
 import com.classmate.reservaservice.repository.ReservaRepository;
@@ -18,7 +19,7 @@ public class ReservaService {
         this.reservaRepository = reservaRepository;
     }
 
-    public Reserva crearReserva(CreateReservaRequest request) {
+    public ReservaResponse crearReserva(CreateReservaRequest request) {
 
         if (request.getFechaReserva().isBefore(LocalDateTime.now())) {
             throw new RuntimeException(
@@ -44,34 +45,44 @@ public class ReservaService {
         reserva.setFechaReserva(request.getFechaReserva());
         reserva.setEstado(EstadoReserva.PENDIENTE);
 
-        return reservaRepository.save(reserva);
+        Reserva reservaGuardada = reservaRepository.save(reserva);
+
+        return convertirAResponse(reservaGuardada);
     }
 
-    public List<Reserva> obtenerReservas() {
+    public List<ReservaResponse> obtenerReservas() {
 
-        return reservaRepository.findAll();
+        return reservaRepository.findAll()
+                .stream()
+                .map(this::convertirAResponse)
+                .toList();
     }
 
-    public Reserva obtenerReservaPorId(Long id) {
+    public ReservaResponse obtenerReservaPorId(Long id) {
 
-        return reservaRepository.findById(id)
+        Reserva reserva = reservaRepository.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException("Reserva no encontrada"));
+
+        return convertirAResponse(reserva);
     }
 
-    public Reserva cancelarReserva(Long id) {
+    public ReservaResponse cancelarReserva(Long id) {
 
         Reserva reserva = reservaRepository.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException("Reserva no encontrada"));
 
         if (reserva.getEstado() == EstadoReserva.CANCELADA) {
-            throw new RuntimeException("La reserva ya está cancelada");
+            throw new RuntimeException(
+                    "La reserva ya está cancelada");
         }
 
         reserva.setEstado(EstadoReserva.CANCELADA);
 
-        return reservaRepository.save(reserva);
+        Reserva reservaActualizada = reservaRepository.save(reserva);
+
+        return convertirAResponse(reservaActualizada);
     }
 
     public void eliminarReserva(Long id) {
@@ -81,5 +92,17 @@ public class ReservaService {
                         new RuntimeException("Reserva no encontrada"));
 
         reservaRepository.delete(reserva);
+    }
+
+    private ReservaResponse convertirAResponse(Reserva reserva) {
+
+        return new ReservaResponse(
+                reserva.getId(),
+                reserva.getUsuarioId(),
+                reserva.getProfesorId(),
+                reserva.getClaseId(),
+                reserva.getFechaReserva(),
+                reserva.getEstado()
+        );
     }
 }
