@@ -69,7 +69,4 @@ public class ClaseService {
         return claseRepository.save(clase);
     }
 
-
-
-
 }

@@ -53,3 +53,11 @@ services:
       MYSQL_DATABASE: pago_db
     ports:
       - "3312:3306"
+  mysql-notificacion:
+    image: mysql:8.0.39
+    container_name: mysql-notificacion
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: notificacion_db
+    ports:
+      - "3313:3306"
