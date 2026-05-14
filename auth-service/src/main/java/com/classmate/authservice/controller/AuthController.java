@@ -1,17 +1,14 @@
 package com.classmate.authservice.controller;
 
-
+import com.classmate.authservice.dto.LoginRequest;
+import com.classmate.authservice.dto.LoginResponse;
 import com.classmate.authservice.dto.RegisterRequest;
-import com.classmate.authservice.entity.Usuario;
+import com.classmate.authservice.dto.RegisterResponse;
 import com.classmate.authservice.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import com.classmate.authservice.dto.LoginRequest;
-import com.classmate.authservice.dto.LoginResponse;
-import com.classmate.authservice.dto.RegisterResponse;
 
 @RestController
 @RequestMapping("/auth")
@@ -27,26 +24,17 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(
             @Valid @RequestBody LoginRequest request) {
 
-        String token = authService.login(request);
-
-        return ResponseEntity.ok(new LoginResponse(token));
+        return ResponseEntity.ok(
+                authService.login(request)
+        );
     }
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(
             @Valid @RequestBody RegisterRequest request) {
 
-        Usuario usuario = authService.register(request);
-
-        RegisterResponse response = new RegisterResponse(
-                usuario.getId(),
-                usuario.getEmail(),
-                usuario.getRole()
-        );
-
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(response);
+                .body(authService.register(request));
     }
-
 }
