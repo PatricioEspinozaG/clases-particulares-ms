@@ -6,6 +6,8 @@ import com.classmate.reservaservice.entity.Reserva;
 import com.classmate.reservaservice.repository.ReservaRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ReservaService {
 
@@ -26,6 +28,18 @@ public class ReservaService {
         reserva.setEstado(EstadoReserva.PENDIENTE);
 
         return reservaRepository.save(reserva);
+    }
+
+    public List<Reserva> obtenerReservas() {
+
+        return reservaRepository.findAll();
+    }
+
+    public Reserva obtenerReservaPorId(Long id) {
+
+        return reservaRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Reserva no encontrada"));
     }
 
     public Reserva cancelarReserva(Long id) {

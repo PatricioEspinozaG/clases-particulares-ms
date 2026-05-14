@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/reservas")
 public class ReservaController {
@@ -37,6 +39,43 @@ public class ReservaController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ReservaResponse>> obtenerReservas() {
+
+        List<ReservaResponse> reservas = reservaService
+                .obtenerReservas()
+                .stream()
+                .map(reserva -> new ReservaResponse(
+                        reserva.getId(),
+                        reserva.getUsuarioId(),
+                        reserva.getProfesorId(),
+                        reserva.getClaseId(),
+                        reserva.getFechaReserva(),
+                        reserva.getEstado()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(reservas);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ReservaResponse> obtenerReservaPorId(
+            @PathVariable Long id) {
+
+        Reserva reserva = reservaService.obtenerReservaPorId(id);
+
+        ReservaResponse response = new ReservaResponse(
+                reserva.getId(),
+                reserva.getUsuarioId(),
+                reserva.getProfesorId(),
+                reserva.getClaseId(),
+                reserva.getFechaReserva(),
+                reserva.getEstado()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/cancelar")
