@@ -1,4 +1,4 @@
-package com.profesor.profesor;
+package com.classmate.profesorservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
