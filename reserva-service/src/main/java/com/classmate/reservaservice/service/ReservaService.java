@@ -6,6 +6,7 @@ import com.classmate.reservaservice.entity.Reserva;
 import com.classmate.reservaservice.repository.ReservaRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,6 +19,22 @@ public class ReservaService {
     }
 
     public Reserva crearReserva(CreateReservaRequest request) {
+
+        if (request.getFechaReserva().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException(
+                    "No se puede reservar una fecha pasada");
+        }
+
+        boolean existeReserva = reservaRepository
+                .existsByProfesorIdAndFechaReserva(
+                        request.getProfesorId(),
+                        request.getFechaReserva()
+                );
+
+        if (existeReserva) {
+            throw new RuntimeException(
+                    "El profesor ya tiene una reserva en ese horario");
+        }
 
         Reserva reserva = new Reserva();
 
