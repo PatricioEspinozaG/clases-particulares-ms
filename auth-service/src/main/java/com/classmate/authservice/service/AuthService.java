@@ -9,7 +9,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.classmate.authservice.security.JwtService;
-import com.classmate.authservice.dto.LoginRequest;
 
 @Service
 public class AuthService {
