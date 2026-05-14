@@ -23,12 +23,18 @@ public class UsuarioService {
             throw new RuntimeException("El correo ya existe");
         }
 
+        if (usuarioRepository.findByAuthUserId(request.getAuthUserId()).isPresent()) {
+            throw new RuntimeException("El authUserId ya está asociado a un usuario");
+        }
+
         Usuario usuario = new Usuario();
         usuario.setAuthUserId(request.getAuthUserId());
         usuario.setNombre(request.getNombre());
         usuario.setApellido(request.getApellido());
         usuario.setEmail(request.getEmail());
         usuario.setTelefono(request.getTelefono());
+        usuario.setFechaNacimiento(request.getFechaNacimiento());
+        usuario.setTipoUsuario(request.getTipoUsuario());
 
         Usuario guardado = usuarioRepository.save(usuario);
 
@@ -49,6 +55,13 @@ public class UsuarioService {
         return toResponse(usuario);
     }
 
+    public UsuarioResponse buscarPorAuthUserId(Long authUserId) {
+        Usuario usuario = usuarioRepository.findByAuthUserId(authUserId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        return toResponse(usuario);
+    }
+
     public UsuarioResponse actualizar(Long id, UsuarioRequest request) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -58,8 +71,12 @@ public class UsuarioService {
         usuario.setApellido(request.getApellido());
         usuario.setEmail(request.getEmail());
         usuario.setTelefono(request.getTelefono());
+        usuario.setFechaNacimiento(request.getFechaNacimiento());
+        usuario.setTipoUsuario(request.getTipoUsuario());
 
-        return toResponse(usuarioRepository.save(usuario));
+        Usuario actualizado = usuarioRepository.save(usuario);
+
+        return toResponse(actualizado);
     }
 
     public void eliminar(Long id) {
@@ -77,7 +94,9 @@ public class UsuarioService {
                 usuario.getNombre(),
                 usuario.getApellido(),
                 usuario.getEmail(),
-                usuario.getTelefono()
+                usuario.getTelefono(),
+                usuario.getFechaNacimiento(),
+                usuario.getTipoUsuario()
         );
     }
 }

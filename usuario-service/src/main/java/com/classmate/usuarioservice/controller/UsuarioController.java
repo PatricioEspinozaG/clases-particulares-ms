@@ -22,7 +22,8 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<UsuarioResponse> crear(@Valid @RequestBody UsuarioRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.crear(request));
+        UsuarioResponse response = usuarioService.crear(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
@@ -33,6 +34,11 @@ public class UsuarioController {
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.buscarPorId(id));
+    }
+
+    @GetMapping("/auth/{authUserId}")
+    public ResponseEntity<UsuarioResponse> buscarPorAuthUserId(@PathVariable Long authUserId) {
+        return ResponseEntity.ok(usuarioService.buscarPorAuthUserId(authUserId));
     }
 
     @PutMapping("/{id}")
