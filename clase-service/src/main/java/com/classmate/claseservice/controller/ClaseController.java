@@ -33,31 +33,31 @@ public class ClaseController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Clase>> obtenerClases(){
+    public ResponseEntity<List<ClaseResponse>> obtenerClases(){
         return ResponseEntity.ok(claseService.obtenerClases());
     }
 
-    @PutMapping("/id")
-    public ResponseEntity<Clase> actualizarClase(
+    @PutMapping("/{id}")
+    public ResponseEntity<ClaseResponse> actualizarClase(
             @PathVariable Long id, @Valid @RequestBody ClaseRequest request){
 
-        Clase claseActualizada = claseService.actualizarClase(id, request);
+        ClaseResponse  claseActualizada = claseService.actualizarClase(id, request);
 
         return ResponseEntity.ok(claseActualizada);
     }
 
-    @GetMapping("/id")
-    public ResponseEntity<Clase> obtenerClasePorId(@PathVariable Long id){
+    @GetMapping("/{id}")
+    public ResponseEntity<ClaseResponse> obtenerClasePorId(
+            @PathVariable Long id){
+
         return ResponseEntity.ok(claseService.obtenerClasePorId(id));
     }
 
-    @DeleteMapping("/id")
-    public ResponseEntity<Void> eliminarClase(@PathVariable Long id){
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> eliminarClase(@PathVariable Long id){
+
         claseService.eliminarClase(id);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Clase eliminada correctamente");
     }
-
-
-
 }
