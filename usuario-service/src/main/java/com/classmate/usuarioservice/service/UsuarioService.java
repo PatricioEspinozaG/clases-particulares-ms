@@ -1,4 +1,5 @@
 package com.classmate.usuarioservice.service;
+import com.classmate.usuarioservice.exception.ResourceNotFoundException;
 
 import com.classmate.usuarioservice.dto.UsuarioRequest;
 import com.classmate.usuarioservice.dto.UsuarioResponse;
@@ -50,21 +51,21 @@ public class UsuarioService {
 
     public UsuarioResponse buscarPorId(Long id) {
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         return toResponse(usuario);
     }
 
     public UsuarioResponse buscarPorAuthUserId(Long authUserId) {
         Usuario usuario = usuarioRepository.findByAuthUserId(authUserId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         return toResponse(usuario);
     }
 
     public UsuarioResponse actualizar(Long id, UsuarioRequest request) {
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         usuario.setAuthUserId(request.getAuthUserId());
         usuario.setNombre(request.getNombre());
@@ -81,7 +82,7 @@ public class UsuarioService {
 
     public void eliminar(Long id) {
         if (!usuarioRepository.existsById(id)) {
-            throw new RuntimeException("Usuario no encontrado");
+            throw new ResourceNotFoundException("Usuario no encontrado");
         }
 
         usuarioRepository.deleteById(id);

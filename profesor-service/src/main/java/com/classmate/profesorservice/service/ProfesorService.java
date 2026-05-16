@@ -1,9 +1,11 @@
 package com.classmate.profesorservice.service;
 
+import com.classmate.profesorservice.client.UsuarioClient;
 import com.classmate.profesorservice.dto.ProfesorRequest;
 import com.classmate.profesorservice.dto.ProfesorResponse;
 import com.classmate.profesorservice.entity.Profesor;
 import com.classmate.profesorservice.repository.ProfesorRepository;
+import feign.FeignException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,83 +14,184 @@ import java.util.List;
 public class ProfesorService {
 
     private final ProfesorRepository profesorRepository;
+    private final UsuarioClient usuarioClient;
 
-    public ProfesorService(ProfesorRepository profesorRepository) {
+    public ProfesorService(
+            ProfesorRepository profesorRepository,
+            UsuarioClient usuarioClient) {
+
         this.profesorRepository = profesorRepository;
+        this.usuarioClient = usuarioClient;
     }
 
     public ProfesorResponse crear(ProfesorRequest request) {
 
-        if (profesorRepository.findByUsuarioId(request.getUsuarioId()).isPresent()) {
-            throw new RuntimeException("El usuario ya está registrado como profesor");
+        try {
+
+            validarUsuario(request.getUsuarioId());
+
+            if (profesorRepository.findByUsuarioId(request.getUsuarioId()).isPresent()) {
+                throw new RuntimeException("El usuario ya está registrado como profesor");
+            }
+
+            Profesor profesor = new Profesor();
+
+            profesor.setUsuarioId(request.getUsuarioId());
+            profesor.setEspecialidad(request.getEspecialidad());
+            profesor.setDescripcion(request.getDescripcion());
+            profesor.setPrecioHora(request.getPrecioHora());
+            profesor.setExperienciaAnios(request.getExperienciaAnios());
+            profesor.setEstado(request.getEstado());
+
+            Profesor guardado = profesorRepository.save(profesor);
+
+            return toResponse(guardado);
+
+        } catch (RuntimeException e) {
+            throw e;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al crear profesor");
         }
-
-        Profesor profesor = new Profesor();
-        profesor.setUsuarioId(request.getUsuarioId());
-        profesor.setEspecialidad(request.getEspecialidad());
-        profesor.setDescripcion(request.getDescripcion());
-        profesor.setPrecioHora(request.getPrecioHora());
-        profesor.setExperienciaAnios(request.getExperienciaAnios());
-        profesor.setEstado(request.getEstado());
-
-        Profesor guardado = profesorRepository.save(profesor);
-
-        return toResponse(guardado);
     }
 
     public List<ProfesorResponse> listar() {
-        return profesorRepository.findAll()
-                .stream()
-                .map(this::toResponse)
-                .toList();
+
+        try {
+
+            return profesorRepository.findAll()
+                    .stream()
+                    .map(this::toResponse)
+                    .toList();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al listar profesores");
+        }
     }
 
     public ProfesorResponse buscarPorId(Long id) {
-        Profesor profesor = profesorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Profesor no encontrado"));
 
-        return toResponse(profesor);
+        try {
+
+            Profesor profesor = profesorRepository.findById(id)
+                    .orElseThrow(() ->
+                            new RuntimeException("Profesor no encontrado"));
+
+            return toResponse(profesor);
+
+        } catch (RuntimeException e) {
+            throw e;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al buscar profesor");
+        }
     }
 
     public ProfesorResponse buscarPorUsuarioId(Long usuarioId) {
-        Profesor profesor = profesorRepository.findByUsuarioId(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Profesor no encontrado"));
 
-        return toResponse(profesor);
+        try {
+
+            Profesor profesor = profesorRepository.findByUsuarioId(usuarioId)
+                    .orElseThrow(() ->
+                            new RuntimeException("Profesor no encontrado"));
+
+            return toResponse(profesor);
+
+        } catch (RuntimeException e) {
+            throw e;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al buscar profesor");
+        }
     }
 
     public List<ProfesorResponse> buscarPorEspecialidad(String especialidad) {
-        return profesorRepository.findByEspecialidadContainingIgnoreCase(especialidad)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+
+        try {
+
+            return profesorRepository
+                    .findByEspecialidadContainingIgnoreCase(especialidad)
+                    .stream()
+                    .map(this::toResponse)
+                    .toList();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al buscar profesores");
+        }
     }
 
     public ProfesorResponse actualizar(Long id, ProfesorRequest request) {
-        Profesor profesor = profesorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Profesor no encontrado"));
 
-        profesor.setUsuarioId(request.getUsuarioId());
-        profesor.setEspecialidad(request.getEspecialidad());
-        profesor.setDescripcion(request.getDescripcion());
-        profesor.setPrecioHora(request.getPrecioHora());
-        profesor.setExperienciaAnios(request.getExperienciaAnios());
-        profesor.setEstado(request.getEstado());
+        try {
 
-        Profesor actualizado = profesorRepository.save(profesor);
+            validarUsuario(request.getUsuarioId());
 
-        return toResponse(actualizado);
+            Profesor profesor = profesorRepository.findById(id)
+                    .orElseThrow(() ->
+                            new RuntimeException("Profesor no encontrado"));
+
+            profesor.setUsuarioId(request.getUsuarioId());
+            profesor.setEspecialidad(request.getEspecialidad());
+            profesor.setDescripcion(request.getDescripcion());
+            profesor.setPrecioHora(request.getPrecioHora());
+            profesor.setExperienciaAnios(request.getExperienciaAnios());
+            profesor.setEstado(request.getEstado());
+
+            Profesor actualizado = profesorRepository.save(profesor);
+
+            return toResponse(actualizado);
+
+        } catch (RuntimeException e) {
+            throw e;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al actualizar profesor");
+        }
     }
 
     public void eliminar(Long id) {
-        if (!profesorRepository.existsById(id)) {
-            throw new RuntimeException("Profesor no encontrado");
-        }
 
-        profesorRepository.deleteById(id);
+        try {
+
+            if (!profesorRepository.existsById(id)) {
+                throw new RuntimeException("Profesor no encontrado");
+            }
+
+            profesorRepository.deleteById(id);
+
+        } catch (RuntimeException e) {
+            throw e;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al eliminar profesor");
+        }
+    }
+
+    private void validarUsuario(Long usuarioId) {
+
+        try {
+
+            usuarioClient.buscarPorId(usuarioId);
+
+        } catch (FeignException.NotFound e) {
+
+            throw new RuntimeException(
+                    "El usuario con id " + usuarioId + " no existe");
+
+        } catch (FeignException e) {
+
+            throw new RuntimeException(
+                    "No se puede conectar con usuario-service");
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Error al validar usuario");
+        }
     }
 
     private ProfesorResponse toResponse(Profesor profesor) {
+
         return new ProfesorResponse(
                 profesor.getId(),
                 profesor.getUsuarioId(),
