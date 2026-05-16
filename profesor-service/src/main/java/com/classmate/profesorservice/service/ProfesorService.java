@@ -1,4 +1,5 @@
 package com.classmate.profesorservice.service;
+import com.classmate.profesorservice.exception.ResourceNotFoundException;
 
 import com.classmate.profesorservice.client.UsuarioClient;
 import com.classmate.profesorservice.dto.ProfesorRequest;
@@ -75,7 +76,7 @@ public class ProfesorService {
 
             Profesor profesor = profesorRepository.findById(id)
                     .orElseThrow(() ->
-                            new RuntimeException("Profesor no encontrado"));
+                            new ResourceNotFoundException("Profesor no encontrado"));
 
             return toResponse(profesor);
 
@@ -93,7 +94,7 @@ public class ProfesorService {
 
             Profesor profesor = profesorRepository.findByUsuarioId(usuarioId)
                     .orElseThrow(() ->
-                            new RuntimeException("Profesor no encontrado"));
+                            new ResourceNotFoundException("Profesor no encontrado"));
 
             return toResponse(profesor);
 
@@ -128,7 +129,7 @@ public class ProfesorService {
 
             Profesor profesor = profesorRepository.findById(id)
                     .orElseThrow(() ->
-                            new RuntimeException("Profesor no encontrado"));
+                            new ResourceNotFoundException("Profesor no encontrado"));
 
             profesor.setUsuarioId(request.getUsuarioId());
             profesor.setEspecialidad(request.getEspecialidad());
@@ -154,7 +155,7 @@ public class ProfesorService {
         try {
 
             if (!profesorRepository.existsById(id)) {
-                throw new RuntimeException("Profesor no encontrado");
+                throw new ResourceNotFoundException("Profesor no encontrado");
             }
 
             profesorRepository.deleteById(id);
@@ -175,7 +176,7 @@ public class ProfesorService {
 
         } catch (FeignException.NotFound e) {
 
-            throw new RuntimeException(
+            throw new ResourceNotFoundException(
                     "El usuario con id " + usuarioId + " no existe");
 
         } catch (FeignException e) {
