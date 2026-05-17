@@ -1,10 +1,14 @@
 package com.classmate.reservaservice.service;
+import com.classmate.reservaservice.client.ClaseClient;
+import com.classmate.reservaservice.client.NotificacionClient;
+import com.classmate.reservaservice.dto.NotificacionRequest;
 import com.classmate.reservaservice.exception.ResourceNotFoundException;
 import com.classmate.reservaservice.dto.CreateReservaRequest;
 import com.classmate.reservaservice.dto.ReservaResponse;
 import com.classmate.reservaservice.entity.EstadoReserva;
 import com.classmate.reservaservice.entity.Reserva;
 import com.classmate.reservaservice.repository.ReservaRepository;
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -16,9 +20,15 @@ import java.util.List;
 public class ReservaService {
 
     private final ReservaRepository reservaRepository;
+    private final ClaseClient claseClient;
+    private final NotificacionClient notificacionClient;
 
-    public ReservaService(ReservaRepository reservaRepository) {
+    public ReservaService(ReservaRepository reservaRepository,
+                          ClaseClient claseClient,
+                          NotificacionClient notificacionClient) {
         this.reservaRepository = reservaRepository;
+        this.claseClient = claseClient;
+        this.notificacionClient = notificacionClient;
     }
 
     public ReservaResponse crearReserva(CreateReservaRequest request) {
@@ -33,6 +43,7 @@ public class ReservaService {
                     "No se puede reservar una fecha pasada");
         }
 
+        validarClase(request.getClaseId());
         boolean existeReserva = reservaRepository
                 .existsByProfesorIdAndFechaReserva(
                         request.getProfesorId(),
@@ -59,6 +70,25 @@ public class ReservaService {
 
         log.info("Reserva creada correctamente con id {}",
                 reservaGuardada.getId());
+
+        NotificacionRequest notificacionRequest =
+                new NotificacionRequest();
+
+        notificacionRequest.setDestinatario(
+                "usuario@classmate.com");
+
+        notificacionRequest.setAsunto(
+                "Reserva creada");
+
+        notificacionRequest.setMensaje(
+                "Tu reserva fue creada correctamente");
+
+        log.info("Enviando notificación de reserva");
+
+        notificacionClient.enviarNotificacionReserva(
+                notificacionRequest);
+
+        log.info("Notificación de reserva enviada correctamente");
 
         return toResponse(reservaGuardada);
     }
@@ -139,6 +169,32 @@ public class ReservaService {
                 reservaActualizada.getId());
 
         return toResponse(reservaActualizada);
+    }
+
+    private void validarClase(Long claseId) {
+
+        log.info("Validando clase con id {}",
+                claseId);
+
+        try {
+
+            claseClient.obtenerClasePorId(claseId);
+
+        } catch (FeignException.NotFound e) {
+
+            log.error("Clase {} no existe",
+                    claseId);
+
+            throw new ResourceNotFoundException(
+                    "La clase con id " + claseId + " no existe");
+
+        } catch (FeignException e) {
+
+            log.error("Error conectando con clase-service");
+
+            throw new RuntimeException(
+                    "No se puede conectar con clase-service");
+        }
     }
 
     private ReservaResponse toResponse(Reserva reserva) {
