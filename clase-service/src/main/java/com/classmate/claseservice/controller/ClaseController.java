@@ -3,7 +3,6 @@ package com.classmate.claseservice.controller;
 
 import com.classmate.claseservice.dto.ClaseRequest;
 import com.classmate.claseservice.dto.ClaseResponse;
-import com.classmate.claseservice.entity.Clase;
 import com.classmate.claseservice.service.ClaseService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

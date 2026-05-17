@@ -46,7 +46,7 @@ public class ReservaController {
         );
     }
 
-    @PatchMapping("/{id}/cancelar")
+    @PutMapping("/{id}/cancelar")
     public ResponseEntity<ReservaResponse> cancelarReserva(
             @PathVariable Long id) {
 
@@ -64,7 +64,7 @@ public class ReservaController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{id}/confirmar")
+    @PutMapping("/{id}/confirmar")
     public ResponseEntity<ReservaResponse> confirmarReserva(@PathVariable Long id) {
         return ResponseEntity.ok(reservaService.confirmarReserva(id));
     }

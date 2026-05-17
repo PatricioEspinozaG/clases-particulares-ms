@@ -1,5 +1,5 @@
 package com.classmate.reservaservice.service;
-
+import com.classmate.reservaservice.exception.ResourceNotFoundException;
 import com.classmate.reservaservice.dto.CreateReservaRequest;
 import com.classmate.reservaservice.dto.ReservaResponse;
 import com.classmate.reservaservice.entity.EstadoReserva;
@@ -62,7 +62,7 @@ public class ReservaService {
 
         Reserva reserva = reservaRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Reserva no encontrada"));
+                        new ResourceNotFoundException("Reserva no encontrada"));
 
         return convertirAResponse(reserva);
     }
@@ -71,7 +71,7 @@ public class ReservaService {
 
         Reserva reserva = reservaRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Reserva no encontrada"));
+                        new ResourceNotFoundException("Reserva no encontrada"));
 
         if (reserva.getEstado() == EstadoReserva.CANCELADA) {
             throw new RuntimeException(
@@ -89,7 +89,7 @@ public class ReservaService {
 
         Reserva reserva = reservaRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Reserva no encontrada"));
+                        new ResourceNotFoundException("Reserva no encontrada"));
 
         reservaRepository.delete(reserva);
     }
@@ -109,7 +109,8 @@ public class ReservaService {
     public ReservaResponse confirmarReserva(Long id) {
 
         Reserva reserva = reservaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Reserva no encontrada"));
 
         if (reserva.getEstado() == EstadoReserva.CANCELADA) {
             throw new RuntimeException("No se puede confirmar una reserva cancelada");

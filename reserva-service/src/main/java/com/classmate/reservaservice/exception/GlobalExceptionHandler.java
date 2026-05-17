@@ -1,5 +1,6 @@
 package com.classmate.reservaservice.exception;
 
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -27,13 +28,39 @@ public class GlobalExceptionHandler {
                 .body(errors);
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleNotFoundException(
+            ResourceNotFoundException ex) {
+
+        Map<String, String> error = new HashMap<>();
+
+        error.put("mensaje", ex.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(error);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, String>> handleRuntimeException(
+            RuntimeException ex) {
+
+        Map<String, String> error = new HashMap<>();
+
+        error.put("mensaje", ex.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(error);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGenericException(
             Exception ex) {
 
         Map<String, String> error = new HashMap<>();
 
-        error.put("mensaje", ex.getMessage());
+        error.put("mensaje", "Error interno del servidor");
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)

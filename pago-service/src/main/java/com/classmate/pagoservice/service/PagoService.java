@@ -7,6 +7,7 @@ import com.classmate.pagoservice.entity.EstadoPago;
 import com.classmate.pagoservice.entity.Pago;
 import com.classmate.pagoservice.exception.ResourceNotFoundException;
 import com.classmate.pagoservice.repository.PagoRepository;
+import feign.FeignException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,7 +26,7 @@ public class PagoService {
 
     public PagoResponse crearPago(PagoRequest request) {
 
-        reservaClient.obtenerReservaPorId(request.getReservaId());
+        validarReserva(request.getReservaId());
 
         Pago pago = new Pago();
 
@@ -65,6 +66,9 @@ public class PagoService {
 
         pago.setEstado(EstadoPago.APROBADO);
 
+        reservaClient.confirmarReserva(
+                pago.getReservaId());
+
         Pago actualizado = pagoRepository.save(pago);
 
         return toResponse(actualizado);
@@ -98,6 +102,24 @@ public class PagoService {
                 .stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    private void validarReserva(Long reservaId) {
+
+        try {
+
+            reservaClient.obtenerReservaPorId(reservaId);
+
+        } catch (FeignException.NotFound e) {
+
+            throw new ResourceNotFoundException(
+                    "La reserva con id " + reservaId + " no existe");
+
+        } catch (FeignException e) {
+
+            throw new RuntimeException(
+                    "No se puede conectar con reserva-service");
+        }
     }
 
     private PagoResponse toResponse(Pago pago) {
