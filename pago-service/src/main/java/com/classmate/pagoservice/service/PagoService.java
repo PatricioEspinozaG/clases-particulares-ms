@@ -1,9 +1,11 @@
 package com.classmate.pagoservice.service;
 
+import com.classmate.pagoservice.client.ReservaClient;
 import com.classmate.pagoservice.dto.PagoRequest;
 import com.classmate.pagoservice.dto.PagoResponse;
 import com.classmate.pagoservice.entity.EstadoPago;
 import com.classmate.pagoservice.entity.Pago;
+import com.classmate.pagoservice.exception.ResourceNotFoundException;
 import com.classmate.pagoservice.repository.PagoRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +16,16 @@ import java.util.List;
 public class PagoService {
 
     private final PagoRepository pagoRepository;
+    private final ReservaClient reservaClient;
 
-    public PagoService(PagoRepository pagoRepository){
+    public PagoService(PagoRepository pagoRepository, ReservaClient reservaClient) {
         this.pagoRepository = pagoRepository;
+        this.reservaClient = reservaClient;
     }
 
-    public Pago crearPago(PagoRequest request){
+    public PagoResponse crearPago(PagoRequest request) {
+
+        reservaClient.obtenerReservaPorId(request.getReservaId());
 
         Pago pago = new Pago();
 
@@ -29,46 +35,80 @@ public class PagoService {
         pago.setEstado(EstadoPago.PENDIENTE);
         pago.setFechaPago(LocalDateTime.now());
 
-        return pagoRepository.save(pago);
+        Pago guardado = pagoRepository.save(pago);
+
+        return toResponse(guardado);
     }
 
-    public List<Pago> obtenerPagos(){
-        return pagoRepository.findAll();
+    public List<PagoResponse> obtenerPagos() {
+
+        return pagoRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public Pago obtenerPagoPorId(Long id){
-        return pagoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pago no encontrado"));
-    }
-
-    public Pago aprobarPago(Long id){
+    public PagoResponse obtenerPagoPorId(Long id) {
 
         Pago pago = pagoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pago no encontrado"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Pago no encontrado"));
+
+        return toResponse(pago);
+    }
+
+    public PagoResponse aprobarPago(Long id) {
+
+        Pago pago = pagoRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Pago no encontrado"));
 
         pago.setEstado(EstadoPago.APROBADO);
 
-        return pagoRepository.save(pago);
+        Pago actualizado = pagoRepository.save(pago);
+
+        return toResponse(actualizado);
     }
 
-    public Pago rechazarPago(Long id){
+    public PagoResponse rechazarPago(Long id) {
 
         Pago pago = pagoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pago no encontrado"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Pago no encontrado"));
 
         pago.setEstado(EstadoPago.RECHAZADO);
 
-        return pagoRepository.save(pago);
+        Pago actualizado = pagoRepository.save(pago);
+
+        return toResponse(actualizado);
     }
 
-    public void eliminarPago(Long id){
-        Pago pago = pagoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pago no encontrado"));
+    public void eliminarPago(Long id) {
 
-        pagoRepository.delete(pago);
+        if (!pagoRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Pago no encontrado");
+        }
+
+        pagoRepository.deleteById(id);
     }
 
-    public List<Pago> buscarPorEstado(EstadoPago estado){
-        return pagoRepository.findByEstado(estado);
+    public List<PagoResponse> buscarPorEstado(EstadoPago estado) {
+
+        return pagoRepository.findByEstado(estado)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    private PagoResponse toResponse(Pago pago) {
+
+        return new PagoResponse(
+                pago.getId(),
+                pago.getReservaId(),
+                pago.getMonto(),
+                pago.getMetodoPago(),
+                pago.getEstado(),
+                pago.getFechaPago()
+        );
     }
 }

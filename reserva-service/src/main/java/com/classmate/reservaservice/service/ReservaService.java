@@ -105,4 +105,20 @@ public class ReservaService {
                 reserva.getEstado()
         );
     }
+
+    public ReservaResponse confirmarReserva(Long id) {
+
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+
+        if (reserva.getEstado() == EstadoReserva.CANCELADA) {
+            throw new RuntimeException("No se puede confirmar una reserva cancelada");
+        }
+
+        reserva.setEstado(EstadoReserva.CONFIRMADA);
+
+        Reserva reservaActualizada = reservaRepository.save(reserva);
+
+        return convertirAResponse(reservaActualizada);
+    }
 }

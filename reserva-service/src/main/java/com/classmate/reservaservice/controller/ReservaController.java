@@ -63,4 +63,9 @@ public class ReservaController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/confirmar")
+    public ResponseEntity<ReservaResponse> confirmarReserva(@PathVariable Long id) {
+        return ResponseEntity.ok(reservaService.confirmarReserva(id));
+    }
 }
