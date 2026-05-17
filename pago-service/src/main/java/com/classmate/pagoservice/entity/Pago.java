@@ -18,19 +18,19 @@ public class Pago {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "reserva_id", nullable = false)
     private Long reservaId;
 
     @Column(nullable = false)
     private Double monto;
 
-    @Column(nullable = false)
+    @Column(name = "metodo_pago", nullable = false)
     private String metodoPago;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EstadoPago estado;
 
-    @Column(nullable = false)
+    @Column(name = "fecha_pago", nullable = false)
     private LocalDateTime fechaPago;
 }

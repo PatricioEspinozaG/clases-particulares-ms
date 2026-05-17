@@ -1,6 +1,8 @@
 package com.classmate.pagoservice.service;
 
+import com.classmate.pagoservice.client.NotificacionClient;
 import com.classmate.pagoservice.client.ReservaClient;
+import com.classmate.pagoservice.dto.NotificacionRequest;
 import com.classmate.pagoservice.dto.PagoRequest;
 import com.classmate.pagoservice.dto.PagoResponse;
 import com.classmate.pagoservice.entity.EstadoPago;
@@ -20,10 +22,15 @@ public class PagoService {
 
     private final PagoRepository pagoRepository;
     private final ReservaClient reservaClient;
+    private final NotificacionClient notificacionClient;
 
-    public PagoService(PagoRepository pagoRepository, ReservaClient reservaClient) {
+    public PagoService(PagoRepository pagoRepository,
+                       ReservaClient reservaClient,
+                       NotificacionClient notificacionClient) {
+
         this.pagoRepository = pagoRepository;
         this.reservaClient = reservaClient;
+        this.notificacionClient = notificacionClient;
     }
 
     public PagoResponse crearPago(PagoRequest request) {
@@ -82,6 +89,25 @@ public class PagoService {
         reservaClient.confirmarReserva(
                 pago.getReservaId());
 
+        NotificacionRequest notificacionRequest =
+                new NotificacionRequest();
+
+        notificacionRequest.setDestinatario(
+                "usuario@classmate.com");
+
+        notificacionRequest.setAsunto(
+                "Pago aprobado");
+
+        notificacionRequest.setMensaje(
+                "Tu pago fue aprobado correctamente");
+
+        log.info("Enviando notificación de pago aprobado");
+
+        notificacionClient.enviarNotificacionPago(
+                notificacionRequest);
+
+        log.info("Notificación enviada correctamente");
+
         Pago actualizado = pagoRepository.save(pago);
 
         log.info("Pago {} aprobado correctamente",
@@ -99,6 +125,25 @@ public class PagoService {
                         new ResourceNotFoundException("Pago no encontrado"));
 
         pago.setEstado(EstadoPago.RECHAZADO);
+
+        NotificacionRequest notificacionRequest =
+                new NotificacionRequest();
+
+        notificacionRequest.setDestinatario(
+                "usuario@classmate.com");
+
+        notificacionRequest.setAsunto(
+                "Pago rechazado");
+
+        notificacionRequest.setMensaje(
+                "Tu pago fue rechazado");
+
+        log.info("Enviando notificación de pago rechazado");
+
+        notificacionClient.enviarNotificacionPago(
+                notificacionRequest);
+
+        log.info("Notificación de rechazo enviada correctamente");
 
         Pago actualizado = pagoRepository.save(pago);
 

@@ -16,9 +16,12 @@ public class Notificacion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String destinatario;
 
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String mensaje;
 
+    @Column(name = "fecha_envio", nullable = false)
     private LocalDateTime fechaEnvio;
 }

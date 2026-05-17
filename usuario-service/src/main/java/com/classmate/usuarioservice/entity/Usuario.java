@@ -21,15 +21,16 @@ public class Usuario {
     @Column(name = "auth_user_id", nullable = false, unique = true)
     private Long authUserId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String nombre;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String apellido;
 
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(length = 30)
     private String telefono;
 
     @Column(name = "fecha_nacimiento")

@@ -34,6 +34,6 @@ public class Clase {
     @Column(nullable = false)
     private Integer duracion;
 
-    @Column(nullable = false)
+    @Column(name = "profesor_id", nullable = false)
     private Long profesorId;
 }

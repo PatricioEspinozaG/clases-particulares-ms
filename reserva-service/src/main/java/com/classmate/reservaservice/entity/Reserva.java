@@ -31,5 +31,6 @@ public class Reserva {
     private LocalDateTime fechaReserva;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private EstadoReserva estado;
 }
