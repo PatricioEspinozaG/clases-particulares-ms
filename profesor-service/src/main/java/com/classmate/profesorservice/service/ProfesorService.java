@@ -1,16 +1,18 @@
 package com.classmate.profesorservice.service;
-import com.classmate.profesorservice.exception.ResourceNotFoundException;
 
 import com.classmate.profesorservice.client.UsuarioClient;
 import com.classmate.profesorservice.dto.ProfesorRequest;
 import com.classmate.profesorservice.dto.ProfesorResponse;
 import com.classmate.profesorservice.entity.Profesor;
+import com.classmate.profesorservice.exception.ResourceNotFoundException;
 import com.classmate.profesorservice.repository.ProfesorRepository;
 import feign.FeignException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class ProfesorService {
 
@@ -27,148 +29,114 @@ public class ProfesorService {
 
     public ProfesorResponse crear(ProfesorRequest request) {
 
-        try {
+        log.info("Creando profesor para usuario {}",
+                request.getUsuarioId());
 
-            validarUsuario(request.getUsuarioId());
+        validarUsuario(request.getUsuarioId());
 
-            if (profesorRepository.findByUsuarioId(request.getUsuarioId()).isPresent()) {
-                throw new RuntimeException("El usuario ya está registrado como profesor");
-            }
+        if (profesorRepository.findByUsuarioId(request.getUsuarioId()).isPresent()) {
 
-            Profesor profesor = new Profesor();
+            log.error("El usuario {} ya está registrado como profesor",
+                    request.getUsuarioId());
 
-            profesor.setUsuarioId(request.getUsuarioId());
-            profesor.setEspecialidad(request.getEspecialidad());
-            profesor.setDescripcion(request.getDescripcion());
-            profesor.setPrecioHora(request.getPrecioHora());
-            profesor.setExperienciaAnios(request.getExperienciaAnios());
-            profesor.setEstado(request.getEstado());
-
-            Profesor guardado = profesorRepository.save(profesor);
-
-            return toResponse(guardado);
-
-        } catch (RuntimeException e) {
-            throw e;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error al crear profesor");
+            throw new RuntimeException(
+                    "El usuario ya está registrado como profesor");
         }
+
+        Profesor profesor = new Profesor();
+
+        profesor.setUsuarioId(request.getUsuarioId());
+        profesor.setEspecialidad(request.getEspecialidad());
+        profesor.setDescripcion(request.getDescripcion());
+        profesor.setPrecioHora(request.getPrecioHora());
+        profesor.setExperienciaAnios(request.getExperienciaAnios());
+        profesor.setEstado(request.getEstado());
+
+        Profesor guardado = profesorRepository.save(profesor);
+
+        log.info("Profesor creado correctamente con id {}",
+                guardado.getId());
+
+        return toResponse(guardado);
     }
 
     public List<ProfesorResponse> listar() {
 
-        try {
-
-            return profesorRepository.findAll()
-                    .stream()
-                    .map(this::toResponse)
-                    .toList();
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error al listar profesores");
-        }
+        return profesorRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     public ProfesorResponse buscarPorId(Long id) {
 
-        try {
+        Profesor profesor = profesorRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Profesor no encontrado"));
 
-            Profesor profesor = profesorRepository.findById(id)
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException("Profesor no encontrado"));
-
-            return toResponse(profesor);
-
-        } catch (RuntimeException e) {
-            throw e;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error al buscar profesor");
-        }
+        return toResponse(profesor);
     }
 
     public ProfesorResponse buscarPorUsuarioId(Long usuarioId) {
 
-        try {
+        Profesor profesor = profesorRepository.findByUsuarioId(usuarioId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Profesor no encontrado"));
 
-            Profesor profesor = profesorRepository.findByUsuarioId(usuarioId)
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException("Profesor no encontrado"));
-
-            return toResponse(profesor);
-
-        } catch (RuntimeException e) {
-            throw e;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error al buscar profesor");
-        }
+        return toResponse(profesor);
     }
 
     public List<ProfesorResponse> buscarPorEspecialidad(String especialidad) {
 
-        try {
-
-            return profesorRepository
-                    .findByEspecialidadContainingIgnoreCase(especialidad)
-                    .stream()
-                    .map(this::toResponse)
-                    .toList();
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error al buscar profesores");
-        }
+        return profesorRepository
+                .findByEspecialidadContainingIgnoreCase(especialidad)
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     public ProfesorResponse actualizar(Long id, ProfesorRequest request) {
 
-        try {
+        log.info("Actualizando profesor con id {}", id);
 
-            validarUsuario(request.getUsuarioId());
+        validarUsuario(request.getUsuarioId());
 
-            Profesor profesor = profesorRepository.findById(id)
-                    .orElseThrow(() ->
-                            new ResourceNotFoundException("Profesor no encontrado"));
+        Profesor profesor = profesorRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Profesor no encontrado"));
 
-            profesor.setUsuarioId(request.getUsuarioId());
-            profesor.setEspecialidad(request.getEspecialidad());
-            profesor.setDescripcion(request.getDescripcion());
-            profesor.setPrecioHora(request.getPrecioHora());
-            profesor.setExperienciaAnios(request.getExperienciaAnios());
-            profesor.setEstado(request.getEstado());
+        profesor.setUsuarioId(request.getUsuarioId());
+        profesor.setEspecialidad(request.getEspecialidad());
+        profesor.setDescripcion(request.getDescripcion());
+        profesor.setPrecioHora(request.getPrecioHora());
+        profesor.setExperienciaAnios(request.getExperienciaAnios());
+        profesor.setEstado(request.getEstado());
 
-            Profesor actualizado = profesorRepository.save(profesor);
+        Profesor actualizado = profesorRepository.save(profesor);
 
-            return toResponse(actualizado);
+        log.info("Profesor {} actualizado correctamente",
+                actualizado.getId());
 
-        } catch (RuntimeException e) {
-            throw e;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error al actualizar profesor");
-        }
+        return toResponse(actualizado);
     }
 
     public void eliminar(Long id) {
 
-        try {
+        log.info("Eliminando profesor con id {}", id);
 
-            if (!profesorRepository.existsById(id)) {
-                throw new ResourceNotFoundException("Profesor no encontrado");
-            }
-
-            profesorRepository.deleteById(id);
-
-        } catch (RuntimeException e) {
-            throw e;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error al eliminar profesor");
+        if (!profesorRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Profesor no encontrado");
         }
+
+        profesorRepository.deleteById(id);
+
+        log.info("Profesor {} eliminado correctamente", id);
     }
 
     private void validarUsuario(Long usuarioId) {
+
+        log.info("Validando usuario con id {}",
+                usuarioId);
 
         try {
 
@@ -176,18 +144,18 @@ public class ProfesorService {
 
         } catch (FeignException.NotFound e) {
 
+            log.error("Usuario {} no existe",
+                    usuarioId);
+
             throw new ResourceNotFoundException(
                     "El usuario con id " + usuarioId + " no existe");
 
         } catch (FeignException e) {
 
+            log.error("Error conectando con usuario-service");
+
             throw new RuntimeException(
                     "No se puede conectar con usuario-service");
-
-        } catch (Exception e) {
-
-            throw new RuntimeException(
-                    "Error al validar usuario");
         }
     }
 
