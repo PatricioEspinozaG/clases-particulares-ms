@@ -1,12 +1,14 @@
 package com.classmate.notificacionservice.service;
 
 import com.classmate.notificacionservice.dto.NotificacionRequest;
+import com.classmate.notificacionservice.dto.NotificacionResponse;
 import com.classmate.notificacionservice.entity.Notificacion;
 import com.classmate.notificacionservice.repository.NotificacionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -67,5 +69,18 @@ public class NotificacionService {
         notificacionRepository.save(notificacion);
 
         log.info("Notificación guardada en base de datos");
+    }
+
+    public List<NotificacionResponse> obtenerNotificaciones() {
+
+        return notificacionRepository.findAll()
+                .stream()
+                .map(notificacion -> new NotificacionResponse(
+                        notificacion.getId(),
+                        notificacion.getDestinatario(),
+                        notificacion.getMensaje(),
+                        notificacion.getFechaEnvio()
+                ))
+                .toList();
     }
 }

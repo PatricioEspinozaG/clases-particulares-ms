@@ -1,10 +1,13 @@
 package com.classmate.notificacionservice.controller;
 
 import com.classmate.notificacionservice.dto.NotificacionRequest;
+import com.classmate.notificacionservice.dto.NotificacionResponse;
 import com.classmate.notificacionservice.service.NotificacionService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/notificaciones")
@@ -42,6 +45,14 @@ public class NotificacionController {
 
         return ResponseEntity.ok(
                 notificacionService.enviarNotificacionReserva(request)
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<List<NotificacionResponse>> obtenerNotificaciones() {
+
+        return ResponseEntity.ok(
+                notificacionService.obtenerNotificaciones()
         );
     }
 }
