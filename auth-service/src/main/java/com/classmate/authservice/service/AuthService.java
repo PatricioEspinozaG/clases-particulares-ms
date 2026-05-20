@@ -5,6 +5,7 @@ import com.classmate.authservice.dto.LoginResponse;
 import com.classmate.authservice.dto.RegisterRequest;
 import com.classmate.authservice.dto.RegisterResponse;
 import com.classmate.authservice.entity.Role;
+import com.classmate.authservice.entity.TipoUsuario;
 import com.classmate.authservice.entity.Usuario;
 import com.classmate.authservice.exception.ResourceNotFoundException;
 import com.classmate.authservice.repository.UsuarioRepository;
@@ -67,7 +68,7 @@ public class AuthService {
         usuarioRequest.setTelefono(request.getTelefono());
         usuarioRequest.setFechaNacimiento(request.getFechaNacimiento());
 
-        usuarioRequest.setTipoUsuario(request.getTipoUsuario());
+        usuarioRequest.setTipoUsuario(TipoUsuario.ESTUDIANTE);
 
         usuarioClient.crearUsuario(usuarioRequest);
 
