@@ -31,6 +31,4 @@ public class RegisterRequest {
     @NotNull
     private LocalDate fechaNacimiento;
 
-    @NotNull
-    private TipoUsuario tipoUsuario;
 }

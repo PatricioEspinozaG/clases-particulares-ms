@@ -1,9 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="clase-service" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <module name="clase-service" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="com.classmate.claseservice.ClaseServiceApplication" />
-    <method v="2">
-      <option name="Make" enabled="true" />
-    </method>
-  </configuration>
-</component>
