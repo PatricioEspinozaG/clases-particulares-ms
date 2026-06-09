@@ -17,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/profesores")
 @Tag(name= "Profesores", description = "Operaciones relacionadas con la gestión de profesores")
+//http://localhost:8083/doc/swagger-ui/index.html#/
 public class ProfesorController {
 
     private final ProfesorService profesorService;
