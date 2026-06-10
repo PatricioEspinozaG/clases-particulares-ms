@@ -1,4 +1,4 @@
-package com.classmate.profesorservice.config;
+package com.classmate.notificacionservice.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -8,12 +8,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
 
-    @Bean // indica que un objeto será administrado por Spring
-    public OpenAPI customOpenAPI(){
+    @Bean
+    public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Classmate - Profesor service")
+                        .title("ClassMate - Notificación Service")
                         .version("1.0")
-                        .description("DOCUMENTACIÓN DE API SISTEMA DE PROFESOR"));
+                        .description("Documentación de la API para la gestión de notificaciones"));
     }
+
 }
