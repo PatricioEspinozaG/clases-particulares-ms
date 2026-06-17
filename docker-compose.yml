@@ -82,3 +82,10 @@ services:
       MYSQL_DATABASE: notificacion_db
     ports:
       - "3313:3306"
+
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+
+    ports:
+      - "8761:8761"
