@@ -1,9 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="usuario-service" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <module name="usuario-service" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="com.classmate.usuarioservice.UsuarioApplication" />
-    <method v="2">
-      <option name="Make" enabled="true" />
-    </method>
-  </configuration>
-</component>
