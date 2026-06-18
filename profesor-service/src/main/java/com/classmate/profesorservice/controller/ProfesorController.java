@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-//http://localhost:8082/doc/swagger-ui/index.html#/
+//http://localhost:8083/doc/swagger-ui/index.html#/
 
 @RestController
 @RequestMapping("/profesores")

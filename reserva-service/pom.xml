@@ -15,7 +15,7 @@
 	<groupId>com.classmate</groupId>
 	<artifactId>reserva-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>profesor-service</name>
+	<name>reserva-service</name>
 	<description>ClassMate Reserva Service</description>
 
 	<properties>
