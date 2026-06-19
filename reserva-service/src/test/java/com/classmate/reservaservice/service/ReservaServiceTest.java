@@ -10,6 +10,10 @@ import com.classmate.reservaservice.entity.Reserva;
 import com.classmate.reservaservice.exception.ResourceNotFoundException;
 import com.classmate.reservaservice.repository.ReservaRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -20,19 +24,19 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class ReservaServiceTest {
 
-    @Autowired
+    @InjectMocks
     private ReservaService reservaService;
 
-    @MockBean
+    @Mock
     private ReservaRepository reservaRepository;
 
-    @MockBean
+    @Mock
     private ClaseClient claseClient;
 
-    @MockBean
+    @Mock
     private NotificacionClient notificacionClient;
 
     @Test
