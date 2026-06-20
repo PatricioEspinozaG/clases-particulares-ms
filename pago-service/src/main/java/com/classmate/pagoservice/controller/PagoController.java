@@ -4,6 +4,10 @@ import com.classmate.pagoservice.dto.PagoRequest;
 import com.classmate.pagoservice.dto.PagoResponse;
 import com.classmate.pagoservice.entity.EstadoPago;
 import com.classmate.pagoservice.service.PagoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -18,6 +22,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/pagos")
+@Tag(
+        name = "Pagos",
+        description = "Operaciones relacionadas con la gestión de pagos de reservas"
+)
 public class PagoController {
 
     private final PagoService pagoService;
@@ -27,6 +35,16 @@ public class PagoController {
     }
 
     @PostMapping
+    @Operation(
+            summary = "Crear pago",
+            description = "Registra un nuevo pago asociado a una reserva"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Pago creado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos o error de validación"),
+            @ApiResponse(responseCode = "404", description = "Reserva no encontrada"),
+            @ApiResponse(responseCode = "409", description = "Ya existe un pago asociado a la reserva")
+    })
     public ResponseEntity<EntityModel<PagoResponse>> crearPago(
             @Valid @RequestBody PagoRequest request) {
 
@@ -38,6 +56,13 @@ public class PagoController {
     }
 
     @GetMapping
+    @Operation(
+            summary = "Listar pagos",
+            description = "Obtiene todos los pagos registrados en el sistema"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Listado de pagos obtenido correctamente")
+    })
     public ResponseEntity<CollectionModel<EntityModel<PagoResponse>>> obtenerPagos() {
 
         List<EntityModel<PagoResponse>> pagos = pagoService.obtenerPagos()
@@ -52,6 +77,14 @@ public class PagoController {
     }
 
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Buscar pago por ID",
+            description = "Obtiene un pago mediante su identificador"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pago encontrado"),
+            @ApiResponse(responseCode = "404", description = "Pago no encontrado")
+    })
     public ResponseEntity<EntityModel<PagoResponse>> obtenerPagoPorId(
             @PathVariable Long id) {
 
@@ -59,6 +92,15 @@ public class PagoController {
     }
 
     @PutMapping("/{id}/aprobar")
+    @Operation(
+            summary = "Aprobar pago",
+            description = "Aprueba un pago pendiente y actualiza su estado"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pago aprobado correctamente"),
+            @ApiResponse(responseCode = "400", description = "El pago no puede ser aprobado por su estado actual"),
+            @ApiResponse(responseCode = "404", description = "Pago no encontrado")
+    })
     public ResponseEntity<EntityModel<PagoResponse>> aprobarPago(
             @PathVariable Long id) {
 
@@ -66,6 +108,15 @@ public class PagoController {
     }
 
     @PutMapping("/{id}/rechazar")
+    @Operation(
+            summary = "Rechazar pago",
+            description = "Rechaza un pago pendiente y actualiza su estado"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pago rechazado correctamente"),
+            @ApiResponse(responseCode = "400", description = "El pago no puede ser rechazado por su estado actual"),
+            @ApiResponse(responseCode = "404", description = "Pago no encontrado")
+    })
     public ResponseEntity<EntityModel<PagoResponse>> rechazarPago(
             @PathVariable Long id) {
 
@@ -73,6 +124,14 @@ public class PagoController {
     }
 
     @GetMapping("/estado/{estado}")
+    @Operation(
+            summary = "Buscar pagos por estado",
+            description = "Obtiene los pagos filtrados por estado, por ejemplo PENDIENTE, APROBADO o RECHAZADO"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pagos obtenidos correctamente"),
+            @ApiResponse(responseCode = "400", description = "Estado de pago inválido")
+    })
     public ResponseEntity<CollectionModel<EntityModel<PagoResponse>>> buscarPorEstado(
             @PathVariable EstadoPago estado) {
 
@@ -89,6 +148,14 @@ public class PagoController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Eliminar pago",
+            description = "Elimina un pago del sistema"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Pago eliminado correctamente"),
+            @ApiResponse(responseCode = "404", description = "Pago no encontrado")
+    })
     public ResponseEntity<Void> eliminarPago(
             @PathVariable Long id) {
 
