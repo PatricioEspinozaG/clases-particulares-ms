@@ -5,11 +5,16 @@ import com.classmate.pagoservice.dto.PagoResponse;
 import com.classmate.pagoservice.entity.EstadoPago;
 import com.classmate.pagoservice.service.PagoService;
 import jakarta.validation.Valid;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/pagos")
@@ -22,47 +27,65 @@ public class PagoController {
     }
 
     @PostMapping
-    public ResponseEntity<PagoResponse> crearPago(
+    public ResponseEntity<EntityModel<PagoResponse>> crearPago(
             @Valid @RequestBody PagoRequest request) {
 
         PagoResponse response = pagoService.crearPago(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(response);
+                .body(toModel(response));
     }
 
     @GetMapping
-    public ResponseEntity<List<PagoResponse>> obtenerPagos() {
-        return ResponseEntity.ok(pagoService.obtenerPagos());
+    public ResponseEntity<CollectionModel<EntityModel<PagoResponse>>> obtenerPagos() {
+
+        List<EntityModel<PagoResponse>> pagos = pagoService.obtenerPagos()
+                .stream()
+                .map(this::toModel)
+                .toList();
+
+        CollectionModel<EntityModel<PagoResponse>> collection = CollectionModel.of(pagos);
+        collection.add(linkTo(methodOn(PagoController.class).obtenerPagos()).withSelfRel());
+
+        return ResponseEntity.ok(collection);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PagoResponse> obtenerPagoPorId(
+    public ResponseEntity<EntityModel<PagoResponse>> obtenerPagoPorId(
             @PathVariable Long id) {
 
-        return ResponseEntity.ok(pagoService.obtenerPagoPorId(id));
+        return ResponseEntity.ok(toModel(pagoService.obtenerPagoPorId(id)));
     }
 
     @PutMapping("/{id}/aprobar")
-    public ResponseEntity<PagoResponse> aprobarPago(
+    public ResponseEntity<EntityModel<PagoResponse>> aprobarPago(
             @PathVariable Long id) {
 
-        return ResponseEntity.ok(pagoService.aprobarPago(id));
+        return ResponseEntity.ok(toModel(pagoService.aprobarPago(id)));
     }
 
     @PutMapping("/{id}/rechazar")
-    public ResponseEntity<PagoResponse> rechazarPago(
+    public ResponseEntity<EntityModel<PagoResponse>> rechazarPago(
             @PathVariable Long id) {
 
-        return ResponseEntity.ok(pagoService.rechazarPago(id));
+        return ResponseEntity.ok(toModel(pagoService.rechazarPago(id)));
     }
 
     @GetMapping("/estado/{estado}")
-    public ResponseEntity<List<PagoResponse>> buscarPorEstado(
+    public ResponseEntity<CollectionModel<EntityModel<PagoResponse>>> buscarPorEstado(
             @PathVariable EstadoPago estado) {
 
-        return ResponseEntity.ok(pagoService.buscarPorEstado(estado));
+        List<EntityModel<PagoResponse>> pagos = pagoService.buscarPorEstado(estado)
+                .stream()
+                .map(this::toModel)
+                .toList();
+
+        CollectionModel<EntityModel<PagoResponse>> collection = CollectionModel.of(pagos);
+        collection.add(linkTo(methodOn(PagoController.class).buscarPorEstado(estado)).withSelfRel());
+        collection.add(linkTo(methodOn(PagoController.class).obtenerPagos()).withRel("todos"));
+
+        return ResponseEntity.ok(collection);
     }
 
     @DeleteMapping("/{id}")
@@ -72,5 +95,29 @@ public class PagoController {
         pagoService.eliminarPago(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    private EntityModel<PagoResponse> toModel(PagoResponse response) {
+
+        EntityModel<PagoResponse> resource = EntityModel.of(response);
+
+        resource.add(linkTo(methodOn(PagoController.class)
+                .obtenerPagoPorId(response.getId())).withSelfRel());
+
+        resource.add(linkTo(methodOn(PagoController.class)
+                .obtenerPagos()).withRel("pagos"));
+
+        resource.add(linkTo(methodOn(PagoController.class)
+                .buscarPorEstado(response.getEstado())).withRel("buscar-por-estado"));
+
+        if (response.getEstado() == EstadoPago.PENDIENTE) {
+            resource.add(linkTo(methodOn(PagoController.class)
+                    .aprobarPago(response.getId())).withRel("aprobar"));
+
+            resource.add(linkTo(methodOn(PagoController.class)
+                    .rechazarPago(response.getId())).withRel("rechazar"));
+        }
+
+        return resource;
     }
 }
