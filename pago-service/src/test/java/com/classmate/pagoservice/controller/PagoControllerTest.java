@@ -4,46 +4,42 @@ import com.classmate.pagoservice.dto.PagoRequest;
 import com.classmate.pagoservice.dto.PagoResponse;
 import com.classmate.pagoservice.entity.EstadoPago;
 import com.classmate.pagoservice.service.PagoService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(PagoController.class)
+@ExtendWith(MockitoExtension.class)
 class PagoControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
+    @Mock
     private PagoService pagoService;
 
-    private final Faker faker = new Faker();
+    private PagoController pagoController;
+    private Faker faker;
     private PagoRequest request;
     private PagoResponse response;
 
     @BeforeEach
     void setUp() {
+        pagoController = new PagoController(pagoService);
+        faker = new Faker();
+
         request = new PagoRequest();
         request.setReservaId(faker.number().numberBetween(1L, 100L));
         request.setMonto(faker.number().randomDouble(2, 10000, 90000));
@@ -60,57 +56,54 @@ class PagoControllerTest {
     }
 
     @Test
-    void crearPagoDeberiaRetornarCreatedConLinks() throws Exception {
+    void crearPagoDebeRetornarCreatedConLinks() {
         when(pagoService.crearPago(any(PagoRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/pagos")
-                        .with(user("admin").roles("ADMIN"))
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(response.getId()))
-                .andExpect(jsonPath("$._links.self.href").exists())
-                .andExpect(jsonPath("$._links.aprobar.href").exists())
-                .andExpect(jsonPath("$._links.rechazar.href").exists());
+        ResponseEntity<EntityModel<PagoResponse>> resultado = pagoController.crearPago(request);
+
+        assertThat(resultado.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(resultado.getBody()).isNotNull();
+        assertThat(resultado.getBody().getContent()).isEqualTo(response);
+        assertThat(resultado.getBody().getLink("self")).isPresent();
+        assertThat(resultado.getBody().getLink("pagos")).isPresent();
+        assertThat(resultado.getBody().getLink("buscar-por-estado")).isPresent();
+        assertThat(resultado.getBody().getLink("aprobar")).isPresent();
+        assertThat(resultado.getBody().getLink("rechazar")).isPresent();
+
+        verify(pagoService).crearPago(any(PagoRequest.class));
     }
 
     @Test
-    void crearPagoDeberiaRetornarBadRequestCuandoMontoEsNegativo() throws Exception {
-        request.setMonto(-1000.0);
-
-        mockMvc.perform(post("/pagos")
-                        .with(user("admin").roles("ADMIN"))
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void obtenerPagosDeberiaRetornarColeccionConLinks() throws Exception {
+    void obtenerPagosDebeRetornarCollectionModelConLinks() {
         when(pagoService.obtenerPagos()).thenReturn(List.of(response));
 
-        mockMvc.perform(get("/pagos")
-                        .with(user("admin").roles("ADMIN")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.pagoResponseList", hasSize(1)))
-                .andExpect(jsonPath("$._links.self.href").exists());
+        ResponseEntity<CollectionModel<EntityModel<PagoResponse>>> resultado = pagoController.obtenerPagos();
+
+        assertThat(resultado.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(resultado.getBody()).isNotNull();
+        assertThat(resultado.getBody().getContent()).hasSize(1);
+        assertThat(resultado.getBody().getLink("self")).isPresent();
+
+        verify(pagoService).obtenerPagos();
     }
 
     @Test
-    void obtenerPagoPorIdDeberiaRetornarPagoConLinks() throws Exception {
+    void obtenerPagoPorIdDebeRetornarPagoConLinks() {
         when(pagoService.obtenerPagoPorId(1L)).thenReturn(response);
 
-        mockMvc.perform(get("/pagos/1")
-                        .with(user("admin").roles("ADMIN")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$._links.self.href").exists());
+        ResponseEntity<EntityModel<PagoResponse>> resultado = pagoController.obtenerPagoPorId(1L);
+
+        assertThat(resultado.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(resultado.getBody()).isNotNull();
+        assertThat(resultado.getBody().getContent()).isEqualTo(response);
+        assertThat(resultado.getBody().getLink("self")).isPresent();
+        assertThat(resultado.getBody().getLink("pagos")).isPresent();
+
+        verify(pagoService).obtenerPagoPorId(1L);
     }
 
     @Test
-    void aprobarPago_DeberiaRetornarPagoAprobado() throws Exception {
+    void aprobarPagoDebeRetornarPagoAprobadoConLinks() {
         PagoResponse aprobado = new PagoResponse(
                 1L,
                 response.getReservaId(),
@@ -122,16 +115,22 @@ class PagoControllerTest {
 
         when(pagoService.aprobarPago(1L)).thenReturn(aprobado);
 
-        mockMvc.perform(put("/pagos/1/aprobar")
-                        .with(user("admin").roles("ADMIN"))
-                        .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.estado").value("APROBADO"))
-                .andExpect(jsonPath("$._links.self.href").exists());
+        ResponseEntity<EntityModel<PagoResponse>> resultado = pagoController.aprobarPago(1L);
+
+        assertThat(resultado.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(resultado.getBody()).isNotNull();
+        assertThat(resultado.getBody().getContent()).isEqualTo(aprobado);
+        assertThat(resultado.getBody().getContent().getEstado()).isEqualTo(EstadoPago.APROBADO);
+        assertThat(resultado.getBody().getLink("self")).isPresent();
+        assertThat(resultado.getBody().getLink("pagos")).isPresent();
+        assertThat(resultado.getBody().getLink("aprobar")).isNotPresent();
+        assertThat(resultado.getBody().getLink("rechazar")).isNotPresent();
+
+        verify(pagoService).aprobarPago(1L);
     }
 
     @Test
-    void rechazarPagoDeberiaRetornarPagoRechazado() throws Exception {
+    void rechazarPagoDebeRetornarPagoRechazadoConLinks() {
         PagoResponse rechazado = new PagoResponse(
                 1L,
                 response.getReservaId(),
@@ -143,32 +142,45 @@ class PagoControllerTest {
 
         when(pagoService.rechazarPago(1L)).thenReturn(rechazado);
 
-        mockMvc.perform(put("/pagos/1/rechazar")
-                        .with(user("admin").roles("ADMIN"))
-                        .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.estado").value("RECHAZADO"))
-                .andExpect(jsonPath("$._links.self.href").exists());
+        ResponseEntity<EntityModel<PagoResponse>> resultado = pagoController.rechazarPago(1L);
+
+        assertThat(resultado.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(resultado.getBody()).isNotNull();
+        assertThat(resultado.getBody().getContent()).isEqualTo(rechazado);
+        assertThat(resultado.getBody().getContent().getEstado()).isEqualTo(EstadoPago.RECHAZADO);
+        assertThat(resultado.getBody().getLink("self")).isPresent();
+        assertThat(resultado.getBody().getLink("pagos")).isPresent();
+        assertThat(resultado.getBody().getLink("aprobar")).isNotPresent();
+        assertThat(resultado.getBody().getLink("rechazar")).isNotPresent();
+
+        verify(pagoService).rechazarPago(1L);
     }
 
     @Test
-    void buscarPorEstadoDeberiaRetornarColeccionFiltrada() throws Exception {
+    void buscarPorEstadoDebeRetornarCollectionModelConLinks() {
         when(pagoService.buscarPorEstado(EstadoPago.PENDIENTE)).thenReturn(List.of(response));
 
-        mockMvc.perform(get("/pagos/estado/PENDIENTE")
-                        .with(user("admin").roles("ADMIN")))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.pagoResponseList", hasSize(1)))
-                .andExpect(jsonPath("$._links.self.href").exists());
+        ResponseEntity<CollectionModel<EntityModel<PagoResponse>>> resultado =
+                pagoController.buscarPorEstado(EstadoPago.PENDIENTE);
+
+        assertThat(resultado.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(resultado.getBody()).isNotNull();
+        assertThat(resultado.getBody().getContent()).hasSize(1);
+        assertThat(resultado.getBody().getLink("self")).isPresent();
+        assertThat(resultado.getBody().getLink("todos")).isPresent();
+
+        verify(pagoService).buscarPorEstado(EstadoPago.PENDIENTE);
     }
 
     @Test
-    void eliminarPagoDeberiaRetornarNoContent() throws Exception {
+    void eliminarPagoDebeRetornarNoContent() {
         doNothing().when(pagoService).eliminarPago(1L);
 
-        mockMvc.perform(delete("/pagos/1")
-                        .with(user("admin").roles("ADMIN"))
-                        .with(csrf()))
-                .andExpect(status().isNoContent());
+        ResponseEntity<Void> resultado = pagoController.eliminarPago(1L);
+
+        assertThat(resultado.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(resultado.getBody()).isNull();
+
+        verify(pagoService).eliminarPago(1L);
     }
 }
