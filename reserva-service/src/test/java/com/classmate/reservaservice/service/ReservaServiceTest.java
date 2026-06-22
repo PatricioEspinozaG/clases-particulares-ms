@@ -9,6 +9,7 @@ import com.classmate.reservaservice.entity.EstadoReserva;
 import com.classmate.reservaservice.entity.Reserva;
 import com.classmate.reservaservice.exception.ResourceNotFoundException;
 import com.classmate.reservaservice.repository.ReservaRepository;
+import feign.FeignException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,6 +20,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -293,5 +296,92 @@ public class ReservaServiceTest {
 
         verify(reservaRepository, times(1))
                 .save(any(Reserva.class));
+    }
+
+    @Test
+    void shouldReturnAllReservas() {
+
+        Reserva reserva = new Reserva(
+                1L,
+                1L,
+                1L,
+                1L,
+                LocalDateTime.now(),
+                EstadoReserva.PENDIENTE
+        );
+
+        when(reservaRepository.findAll())
+                .thenReturn(List.of(reserva));
+
+        List<ReservaResponse> result =
+                reservaService.obtenerReservas();
+
+        assertEquals(1, result.size());
+        verify(reservaRepository).findAll();
+    }
+
+    @Test
+    void shouldDeleteReserva() {
+
+        Reserva reserva = new Reserva(
+                1L,
+                1L,
+                1L,
+                1L,
+                LocalDateTime.now(),
+                EstadoReserva.PENDIENTE
+        );
+
+        when(reservaRepository.findById(1L))
+                .thenReturn(Optional.of(reserva));
+
+        reservaService.eliminarReserva(1L);
+
+        verify(reservaRepository)
+                .delete(reserva);
+    }
+
+    @Test
+    void shouldThrowWhenClaseDoesNotExist() {
+
+        CreateReservaRequest request =
+                new CreateReservaRequest();
+
+        request.setUsuarioId(1L);
+        request.setProfesorId(1L);
+        request.setClaseId(99L);
+        request.setFechaReserva(
+                LocalDateTime.now().plusDays(1)
+        );
+
+        when(claseClient.obtenerClasePorId(99L))
+                .thenThrow(mock(FeignException.NotFound.class));
+
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> reservaService.crearReserva(request)
+        );
+    }
+
+    @Test
+    void shouldThrowWhenClaseServiceFails() {
+
+        CreateReservaRequest request =
+                new CreateReservaRequest();
+
+        request.setUsuarioId(1L);
+        request.setProfesorId(1L);
+        request.setClaseId(99L);
+        request.setFechaReserva(
+                LocalDateTime.now().plusDays(1)
+        );
+
+        when(claseClient.obtenerClasePorId(99L))
+                .thenThrow(mock(FeignException.class));
+
+        assertThrows(
+                RuntimeException.class,
+                () -> reservaService.crearReserva(request)
+        );
     }
 }
