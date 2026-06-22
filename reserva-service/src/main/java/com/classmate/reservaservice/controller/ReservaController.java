@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import java.util.List;
 
@@ -70,9 +71,16 @@ public class ReservaController {
     public ResponseEntity<ReservaResponse> obtenerReservaPorId(
             @PathVariable Long id) {
 
-        return ResponseEntity.ok(
-                reservaService.obtenerReservaPorId(id)
+        ReservaResponse response =
+                reservaService.obtenerReservaPorId(id);
+        response.add(
+                linkTo(
+                        methodOn(ReservaController.class)
+                                .obtenerReservaPorId(id)
+                ).withSelfRel()
         );
+
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}/cancelar")
