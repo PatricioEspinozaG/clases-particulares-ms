@@ -1,4 +1,5 @@
 # clases-particulares-ms
+
 # ClassMate v1.1.0
 
 Plataforma de gestión de clases particulares basada en arquitectura de microservicios desarrollada con Spring Boot.
@@ -6,8 +7,8 @@ Plataforma de gestión de clases particulares basada en arquitectura de microser
 ## Integrantes
 
 - Patricio Espinoza
-- José XXXXX
-- Renato XXXXX
+- José Ramos
+- Renato Figueroa
 
 ## Tecnologías utilizadas
 
@@ -93,8 +94,30 @@ git checkout main
 
 ### 4. Levantar contenedores
 
+Primera ejecución o después de cambios en el código:
+
+```bash
+docker compose up -d --build
+```
+
+Ejecuciones posteriores:
+
 ```bash
 docker compose up -d
+```
+
+### 5. Verificar servicios
+
+Eureka Server:
+
+```text
+http://localhost:8761
+```
+
+API Gateway:
+
+```text
+http://localhost:8080
 ```
 
 ---
@@ -119,17 +142,67 @@ Desde esta página se puede acceder a:
 http://localhost:8761
 ```
 
+### Swagger UI
+
+Auth Service:
+
+```text
+http://localhost:8081/doc/swagger-ui.html
+```
+
+Usuario Service:
+
+```text
+http://localhost:8082/doc/swagger-ui.html
+```
+
+Profesor Service:
+
+```text
+http://localhost:8083/doc/swagger-ui.html
+```
+
+Clase Service:
+
+```text
+http://localhost:8084/doc/swagger-ui.html
+```
+
+Reserva Service:
+
+```text
+http://localhost:8085/doc/swagger-ui.html
+```
+
+Pago Service:
+
+```text
+http://localhost:8086/doc/swagger-ui.html
+```
+
+Notificación Service:
+
+```text
+http://localhost:8087/doc/swagger-ui.html
+```
+
 ---
 
 ## Testing
 
-Ejecutar todos los tests:
+### Ejecutar todos los tests
 
 ```bash
 .\mvnw.cmd test
 ```
 
-Generar reporte de cobertura:
+### Ejecutar limpieza y pruebas
+
+```bash
+.\mvnw.cmd clean test
+```
+
+### Generar reporte de cobertura
 
 ```bash
 .\mvnw.cmd test
@@ -139,6 +212,20 @@ Reporte JaCoCo:
 
 ```text
 target/site/jacoco/index.html
+```
+
+### Cobertura alcanzada
+
+Auth Service:
+
+```text
+92%
+```
+
+Reserva Service:
+
+```text
+87%
 ```
 
 ---
@@ -151,13 +238,17 @@ target/site/jacoco/index.html
 - Inicio de sesión
 - Generación de JWT
 - Seguridad con Spring Security
+- Validaciones
+- Manejo centralizado de excepciones
 
 ### Reserva Service
 
 - Creación de reservas
 - Consulta de reservas
-- Actualización de reservas
+- Confirmación de reservas
+- Cancelación de reservas
 - Eliminación de reservas
+- Comunicación con otros microservicios mediante Feign
 - Implementación HATEOAS
 
 ### Infraestructura
@@ -167,6 +258,8 @@ target/site/jacoco/index.html
 - Contenerización con Docker
 - Migraciones con Flyway
 - Documentación OpenAPI / Swagger
+- Testing con Mockito y JUnit
+- Cobertura de código con JaCoCo
 
 ---
 
@@ -174,7 +267,19 @@ target/site/jacoco/index.html
 
 ### Error de Lombok en IntelliJ
 
-Instalar plugin Lombok y habilitar Annotation Processing.
+Instalar el plugin Lombok y habilitar Annotation Processing.
+
+Ruta:
+
+```text
+Settings
+→ Build, Execution, Deployment
+→ Compiler
+→ Annotation Processors
+→ Enable annotation processing
+```
+
+---
 
 ### Docker no encuentra archivos JAR
 
@@ -184,11 +289,66 @@ Generar nuevamente los artefactos:
 .\mvnw.cmd clean package
 ```
 
-Luego:
+Luego ejecutar:
 
 ```bash
+docker compose up -d --build
+```
+
+---
+
+### Los cambios realizados no aparecen
+
+Ejemplos:
+
+- Swagger no muestra cambios recientes.
+- HATEOAS no aparece en las respuestas.
+- Nuevos endpoints no están disponibles.
+- Cambios de configuración no se reflejan.
+
+Esto ocurre porque Docker puede estar utilizando imágenes antiguas.
+
+Reconstruir las imágenes:
+
+```bash
+docker compose up -d --build
+```
+
+o:
+
+```bash
+docker compose build
 docker compose up -d
 ```
+
+El parámetro `--build` fuerza la reconstrucción utilizando el código fuente más reciente.
+
+---
+
+### Swagger no muestra la configuración personalizada
+
+Si Swagger carga correctamente pero no aparecen:
+
+- Título personalizado.
+- Descripción personalizada.
+- Información de contacto.
+- Cambios recientes en OpenAPI.
+
+Probablemente el contenedor esté ejecutando una imagen anterior.
+
+Reconstruir los servicios:
+
+```bash
+docker compose up -d --build
+```
+
+Verificar también que los artefactos hayan sido generados:
+
+```bash
+.\mvnw.cmd clean package
+```
+
+---
 
 ### Error al levantar contenedores en un equipo nuevo
 
@@ -197,6 +357,42 @@ Verificar que:
 - Docker Desktop esté iniciado.
 - WSL esté habilitado.
 - Los JAR hayan sido generados correctamente mediante Maven.
+- Los puertos utilizados no estén ocupados.
+- Docker tenga memoria suficiente asignada.
+
+Comprobar contenedores:
+
+```bash
+docker ps
+```
+
+Ver logs:
+
+```bash
+docker logs nombre-del-contenedor
+```
+
+---
+
+### Error 500 de Docker Desktop
+
+Puede ocurrir cuando Docker Desktop queda sin memoria disponible.
+
+Síntomas:
+
+```text
+request returned 500 Internal Server Error
+```
+
+Solución:
+
+1. Reiniciar Docker Desktop.
+2. Esperar a que el motor Linux vuelva a iniciar.
+3. Ejecutar nuevamente:
+
+```bash
+docker compose up -d
+```
 
 ---
 
@@ -219,4 +415,19 @@ Primera entrega del proyecto.
 - Mejoras de estabilidad y despliegue.
 
 ---
+
+## Buenas prácticas utilizadas
+
+- Arquitectura de microservicios.
+- Separación Controller - Service - Repository.
+- DTOs para transferencia de datos.
+- Manejo centralizado de excepciones.
+- Testing unitario con Mockito.
+- Cobertura de código con JaCoCo.
+- Migraciones versionadas con Flyway.
+- Documentación OpenAPI.
+- Contenerización con Docker.
+
+---
+
 Desarrollado como proyecto académico para Duoc UC.
