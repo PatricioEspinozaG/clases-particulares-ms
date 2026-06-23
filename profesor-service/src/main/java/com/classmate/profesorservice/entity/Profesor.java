@@ -21,9 +21,10 @@ public class Profesor {
     @Column(name = "usuario_id", nullable = false, unique = true)
     private Long usuarioId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 150)
     private String especialidad;
 
+    @Column(length = 500)
     private String descripcion;
 
     @Column(name = "precio_hora", nullable = false)

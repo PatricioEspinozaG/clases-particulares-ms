@@ -5,19 +5,15 @@ import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-// @Configuration → Spring registra esta clase al arrancar
-// Define la metadata que aparece en la UI de Swagger
 @Configuration
 public class SwaggerConfig {
 
-    @Bean
-    public OpenAPI customOpenAPI() {
+    @Bean // indica que un objeto será administrado por Spring
+    public OpenAPI customOpenAPI(){
         return new OpenAPI()
                 .info(new Info()
-                        .title("Profesor Service API")
+                        .title("Classmate - Profesor service")
                         .version("1.0")
-                        .description("Microservicio de gestión de profesores del sistema ClassMate. " +
-                                "Permite registrar, listar, actualizar y eliminar perfiles de profesores.")
-                );
+                        .description("DOCUMENTACIÓN DE API SISTEMA DE PROFESOR"));
     }
 }

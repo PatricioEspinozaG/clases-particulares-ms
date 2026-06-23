@@ -17,12 +17,14 @@ public class ProfesorRequest {
     @NotBlank
     private String especialidad;
 
+    @NotBlank
     private String descripcion;
 
     @NotNull
     @Positive
     private BigDecimal precioHora;
 
+    @NotNull
     private Integer experienciaAnios;
 
     @NotNull
