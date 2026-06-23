@@ -22,7 +22,6 @@
 		<java.version>21</java.version>
 	</properties>
 
-	<!-- Compatibilidad Spring Cloud + OpenFeign -->
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -65,6 +64,12 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+
+		<!-- Eureka Client -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 
 		<!-- Flyway -->
@@ -113,21 +118,24 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- ✅ NUEVO: Swagger / OpenAPI -->
-		<!-- Genera documentación automática de todos tus endpoints REST -->
-		<!-- Accesible en: http://localhost:8083/swagger-ui/index.html -->
+		<!-- SWAGGER -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.6.0</version>
 		</dependency>
 
-		<!-- ✅ NUEVO: H2 (base de datos en memoria solo para tests) -->
-		<!-- Los tests no necesitan MySQL instalado gracias a esto -->
+		<!-- DATAFAKER: genera datos falsos realistas para poblar la BD en dev -->
 		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>test</scope>
+			<groupId>net.datafaker</groupId>
+			<artifactId>datafaker</artifactId>
+			<version>2.4.2</version>
+		</dependency>
+
+		<!-- HATEOAS: agrega links de navegación a las respuestas REST -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-hateoas</artifactId>
 		</dependency>
 
 	</dependencies>
@@ -138,6 +146,27 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+
+			<!-- JACOCO: mide cobertura de tests, reporte en target/site/jacoco/index.html -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.12</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
@@ -151,32 +180,6 @@
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
-			</plugin>
-
-			<!-- ✅ NUEVO: JaCoCo — mide el % de código cubierto por tests -->
-			<!-- Genera reporte en: target/site/jacoco/index.html -->
-			<!-- El reporte se genera al ejecutar: mvn test -->
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.12</version>
-				<executions>
-					<!-- Prepara JaCoCo antes de correr los tests -->
-					<execution>
-						<id>prepare-agent</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<!-- Genera el reporte HTML luego de los tests -->
-					<execution>
-						<id>report</id>
-						<phase>test</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 
 		</plugins>

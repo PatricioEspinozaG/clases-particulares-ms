@@ -5,8 +5,6 @@ import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-// @Configuration → Spring registra esta clase al arrancar
-// Define la metadata que aparece en la UI de Swagger
 @Configuration
 public class SwaggerConfig {
 
@@ -14,10 +12,8 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Usuario Service API")
+                        .title("ClassMate - Usuario Service")
                         .version("1.0")
-                        .description("Microservicio de gestión de usuarios del sistema ClassMate. " +
-                                "Permite crear, listar, actualizar y eliminar usuarios.")
-                );
+                        .description("Documentación de la API para la gestión de usuarios"));
     }
 }
