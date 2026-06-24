@@ -11,9 +11,8 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.Locale;
 
-// @Profile("dev") → este componente SOLO se ejecuta con el perfil "dev"
-// No carga datos en producción ni en tests
-@Profile("dev")
+
+@Profile({"dev", "docker"})
 @Component
 public class DataLoader implements CommandLineRunner {
 

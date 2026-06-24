@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
-@Profile("dev")
+@Profile({"dev", "docker"})
 @Component
 public class DataLoader implements CommandLineRunner {
 
