@@ -1,4 +1,4 @@
-package exception;
+package com.classmate.reservaservice.exception;
 
 import com.classmate.reservaservice.exception.GlobalExceptionHandler;
 import com.classmate.reservaservice.exception.ResourceNotFoundException;

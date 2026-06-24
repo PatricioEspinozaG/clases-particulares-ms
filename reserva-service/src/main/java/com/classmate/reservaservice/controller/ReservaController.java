@@ -71,6 +71,7 @@ public class ReservaController {
     public ResponseEntity<ReservaResponse> obtenerReservaPorId(
             @PathVariable Long id) {
 
+        //Esto es del HATEOAS
         ReservaResponse response =
                 reservaService.obtenerReservaPorId(id);
         response.add(
