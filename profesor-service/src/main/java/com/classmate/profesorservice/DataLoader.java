@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.Locale;
 
-// @Profile("dev") → solo se ejecuta con perfil dev, no en producción ni tests
-@Profile("dev")
+
+@Profile({"dev", "docker"})
 @Component
 public class DataLoader implements CommandLineRunner {
 
