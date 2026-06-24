@@ -214,22 +214,6 @@ Reporte JaCoCo:
 target/site/jacoco/index.html
 ```
 
-### Cobertura alcanzada
-
-Auth Service:
-
-```text
-92%
-```
-
-Reserva Service:
-
-```text
-87%
-```
-
----
-
 ## Funcionalidades implementadas
 
 ### Auth Service
