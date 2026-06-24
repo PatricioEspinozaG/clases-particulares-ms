@@ -1,13 +1,48 @@
 services:
 
+# .\mvnw.cmd clean package
+
+  # =========================
+  # AUTH
+  # =========================
+
   mysql-auth:
     image: mysql:8.0.39
     container_name: mysql-auth
+
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: auth_db
+
     ports:
       - "3307:3306"
+
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+
+    depends_on:
+      mysql-auth:
+        condition: service_healthy
+
+      eureka-server:
+        condition: service_started
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+    ports:
+      - "8081:8081"
+
+  # =========================
+  # USUARIO
+  # =========================
 
   mysql-usuario:
     image: mysql:8.0.39
@@ -17,6 +52,32 @@ services:
       MYSQL_DATABASE: usuario_db
     ports:
       - "3308:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  usuario-service:
+    build: ./usuario-service
+    container_name: usuario-service
+
+    depends_on:
+      mysql-usuario:
+        condition: service_healthy
+
+      eureka-server:
+        condition: service_started
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+    ports:
+      - "8082:8082"
+
+  # =========================
+  # PROFESOR
+  # =========================
 
   mysql-profesor:
     image: mysql:8.0.39
@@ -24,17 +85,74 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: profesor_db
+
     ports:
       - "3309:3306"
+
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  profesor-service:
+    build: ./profesor-service
+    container_name: profesor-service
+
+    depends_on:
+      mysql-profesor:
+        condition: service_healthy
+
+      eureka-server:
+        condition: service_started
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+    ports:
+      - "8083:8083"
+
+  # =========================
+  # CLASE
+  # =========================
 
   mysql-clase:
     image: mysql:8.0.39
     container_name: mysql-clase
+
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: clase_db
+
     ports:
       - "3310:3306"
+
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  clase-service:
+    build: ./clase-service
+    container_name: clase-service
+
+    depends_on:
+      mysql-clase:
+        condition: service_healthy
+
+      eureka-server:
+        condition: service_started
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+    ports:
+      - "8084:8084"
+
+  # =========================
+  # RESERVA
+  # =========================
 
   mysql-reserva:
     image: mysql:8.0.39
@@ -44,6 +162,32 @@ services:
       MYSQL_DATABASE: reserva_db
     ports:
       - "3311:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  reserva-service:
+    build: ./reserva-service
+    container_name: reserva-service
+
+    depends_on:
+      mysql-reserva:
+        condition: service_healthy
+
+      eureka-server:
+        condition: service_started
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+    ports:
+      - "8085:8085"
+
+  # =========================
+  # PAGO
+  # =========================
 
   mysql-pago:
     image: mysql:8.0.39
@@ -53,6 +197,33 @@ services:
       MYSQL_DATABASE: pago_db
     ports:
       - "3312:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  pago-service:
+    build: ./pago-service
+    container_name: pago-service
+
+    depends_on:
+      mysql-pago:
+        condition: service_healthy
+
+      eureka-server:
+        condition: service_started
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+    ports:
+      - "8086:8086"
+
+  # =========================
+  # NOTIFICACION
+  # =========================
+
   mysql-notificacion:
     image: mysql:8.0.39
     container_name: mysql-notificacion
@@ -61,3 +232,53 @@ services:
       MYSQL_DATABASE: notificacion_db
     ports:
       - "3313:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  notificacion-service:
+    build: ./notificacion-service
+    container_name: notificacion-service
+
+    depends_on:
+      mysql-notificacion:
+        condition: service_healthy
+
+      eureka-server:
+        condition: service_started
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+    ports:
+      - "8087:8087"
+
+  # =========================
+  # EUREKA
+  # =========================
+
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+
+    ports:
+      - "8761:8761"
+
+  # =========================
+  # GATEWAY
+  # =========================
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+    depends_on:
+      - eureka-server
+
+    ports:
+      - "8080:8080"
